@@ -294,14 +294,17 @@ class StepBar extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        // Basic responsive heuristic: smaller circles on very narrow widths.
+        // Basic responsive heuristic: adapt size to per-step width, and collapse connectors when ultra-tight.
         final int numSteps = resolvedSteps.length;
-        final double minPerStepWidth = constraints.maxWidth.isFinite
-            ? constraints.maxWidth / numSteps
+        final double perStepWidth = constraints.maxWidth.isFinite
+            ? (constraints.maxWidth / numSteps)
             : resolvedCircleSize * 2.5;
-        final double adaptiveCircle = minPerStepWidth < (resolvedCircleSize * 2)
-            ? (resolvedCircleSize * 0.85).clamp(18.0, resolvedCircleSize)
-            : resolvedCircleSize;
+        final bool ultraTight = perStepWidth < resolvedCircleSize;
+        final double adaptiveCircle = ultraTight
+            ? perStepWidth.clamp(4.0, resolvedCircleSize)
+            : (perStepWidth < (resolvedCircleSize * 2)
+                ? (resolvedCircleSize * 0.85).clamp(4.0, resolvedCircleSize)
+                : resolvedCircleSize);
 
         final List<Widget> stepWidgets = List<Widget>.generate(numSteps, (
           int index,
@@ -326,16 +329,18 @@ class StepBar extends StatelessWidget {
                   iconThemeSize: themeData.iconSize,
                 ),
                 if (!isLast)
-                  Expanded(
-                    child: _StepConnector(
-                      isCompleted: step.status == StepStatus.completed || step.status == StepStatus.active,
-                      thickness: resolvedConnectorThickness,
-                      color: (step.status == StepStatus.completed)
-                          ? (step.completedColor ?? completedColor ?? themeData.completedColor ?? theme.colorScheme.primary)
-                          : resolvedConnectorColor,
-                      gap: themeData.connectorGap,
-                    ),
-                  ),
+                  (ultraTight
+                      ? const SizedBox.shrink()
+                      : Expanded(
+                          child: _StepConnector(
+                            isCompleted: step.status == StepStatus.completed || step.status == StepStatus.active,
+                            thickness: resolvedConnectorThickness,
+                            color: (step.status == StepStatus.completed)
+                                ? (step.completedColor ?? completedColor ?? themeData.completedColor ?? theme.colorScheme.primary)
+                                : resolvedConnectorColor,
+                            gap: themeData.connectorGap,
+                          ),
+                        )),
               ],
             ),
           );
@@ -469,25 +474,29 @@ class _StepIndicator extends StatelessWidget {
       value: status == StepStatus.active
           ? 'current'
           : (status == StepStatus.completed ? 'completed' : 'upcoming'),
-      child: Container(
+      child: SizedBox(
         width: circleSize,
-        height: circleSize,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          shape: BoxShape.circle,
-        ),
-        alignment: Alignment.center,
-        child: IconTheme(
-          data: IconThemeData(size: iconThemeSize, color: iconThemeColor),
-          child: icon ?? (showIndexFallback
-              ? Text(
-                  '${index + 1}',
-                  style: TextStyle(
-                    color: onColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-              : const SizedBox.shrink()),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Container(
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: IconTheme(
+              data: IconThemeData(size: iconThemeSize, color: iconThemeColor),
+              child: icon ?? (showIndexFallback
+                  ? Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        color: onColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : const SizedBox.shrink()),
+            ),
+          ),
         ),
       ),
     );
