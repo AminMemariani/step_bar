@@ -3,8 +3,14 @@
 [![CI](https://github.com/AminMemariani/step_bar/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AminMemariani/step_bar/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-84%25-green)](https://app.codecov.io/gh/AminMemariani/step_bar)
 [![pub package](https://img.shields.io/pub/v/step_bar.svg)](https://pub.dev/packages/step_bar)
+[![Pub points](https://img.shields.io/pub/points/step_bar)](https://pub.dev/packages/step_bar/score)
+[![Pub likes](https://img.shields.io/pub/likes/step_bar)](https://pub.dev/packages/step_bar/score)
+[![Popularity](https://img.shields.io/pub/popularity/step_bar)](https://pub.dev/packages/step_bar/score)
+[![Example](https://img.shields.io/badge/example-open-blue)](https://github.com/AminMemariani/step_bar/tree/main/example)
 
 A customizable, responsive Step Bar widget for Flutter, ideal for multi-step forms and wizards. Supports per-step icons, labels, colors, and active/completed/inactive states. Provides sensible defaults and full theming via `StepBarTheme`/`StepBarThemeData`.
+
+- Pub: https://pub.dev/packages/step_bar
 
 ## Features
 
