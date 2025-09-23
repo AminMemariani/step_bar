@@ -135,6 +135,17 @@ Generate coverage report:
 flutter test --coverage
 ```
 
+### CI/CD
+
+The package uses GitHub Actions for continuous integration:
+
+- **Tests**: Automatically run on every push and pull request
+- **Analysis**: Dart analyzer ensures code quality
+- **Coverage**: Test coverage is generated and uploaded to Codecov
+- **Flutter Version**: CI uses Flutter 3.32.6 (stable channel)
+
+[View latest CI run](https://github.com/AminMemariani/step_bar/actions)
+
 ## License
 
 MIT
