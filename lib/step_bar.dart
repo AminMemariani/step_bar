@@ -51,6 +51,10 @@ class StepBarThemeData {
     this.spacing = 12.0,
     this.connectorGap = const EdgeInsets.symmetric(horizontal: 8.0),
     this.showStepIndexWhenNoIcon = true,
+    this.iconSize = 16.0,
+    this.activeIconColor,
+    this.completedIconColor,
+    this.inactiveIconColor,
   });
 
   /// Color used for the active step.
@@ -86,6 +90,18 @@ class StepBarThemeData {
   /// Whether to render the numeric index if no icon is supplied.
   final bool showStepIndexWhenNoIcon;
 
+  /// Icon size applied via IconTheme inside each indicator.
+  final double iconSize;
+
+  /// Icon color for active state.
+  final Color? activeIconColor;
+
+  /// Icon color for completed state.
+  final Color? completedIconColor;
+
+  /// Icon color for inactive state.
+  final Color? inactiveIconColor;
+
   StepBarThemeData copyWith({
     Color? activeColor,
     Color? completedColor,
@@ -98,6 +114,10 @@ class StepBarThemeData {
     double? spacing,
     EdgeInsets? connectorGap,
     bool? showStepIndexWhenNoIcon,
+    double? iconSize,
+    Color? activeIconColor,
+    Color? completedIconColor,
+    Color? inactiveIconColor,
   }) {
     return StepBarThemeData(
       activeColor: activeColor ?? this.activeColor,
@@ -112,6 +132,10 @@ class StepBarThemeData {
       connectorGap: connectorGap ?? this.connectorGap,
       showStepIndexWhenNoIcon:
           showStepIndexWhenNoIcon ?? this.showStepIndexWhenNoIcon,
+      iconSize: iconSize ?? this.iconSize,
+      activeIconColor: activeIconColor ?? this.activeIconColor,
+      completedIconColor: completedIconColor ?? this.completedIconColor,
+      inactiveIconColor: inactiveIconColor ?? this.inactiveIconColor,
     );
   }
 
@@ -135,6 +159,10 @@ class StepBarThemeData {
         color: theme.colorScheme.onSurface,
         fontWeight: FontWeight.w600,
       ),
+      iconSize: 16.0,
+      activeIconColor: theme.colorScheme.onPrimary,
+      completedIconColor: theme.colorScheme.onPrimary,
+      inactiveIconColor: theme.colorScheme.onSurfaceVariant,
     );
   }
 }
@@ -290,27 +318,20 @@ class StepBar extends StatelessWidget {
                   circleSize: adaptiveCircle,
                   status: step.status,
                   color: color,
-                  inactiveColor:
-                      step.color ??
-                      inactiveColor ??
-                      themeData.inactiveColor ??
-                      theme.colorScheme.outlineVariant,
+                  inactiveColor: step.color ?? inactiveColor ?? themeData.inactiveColor ?? theme.colorScheme.outlineVariant,
                   onColor: _onColorFor(theme, color),
                   icon: _iconFor(step),
                   showIndexFallback: themeData.showStepIndexWhenNoIcon,
+                  iconThemeColor: _iconColorFor(themeData, step.status),
+                  iconThemeSize: themeData.iconSize,
                 ),
                 if (!isLast)
                   Expanded(
                     child: _StepConnector(
-                      isCompleted:
-                          step.status == StepStatus.completed ||
-                          step.status == StepStatus.active,
+                      isCompleted: step.status == StepStatus.completed || step.status == StepStatus.active,
                       thickness: resolvedConnectorThickness,
                       color: (step.status == StepStatus.completed)
-                          ? (step.completedColor ??
-                                completedColor ??
-                                themeData.completedColor ??
-                                theme.colorScheme.primary)
+                          ? (step.completedColor ?? completedColor ?? themeData.completedColor ?? theme.colorScheme.primary)
                           : resolvedConnectorColor,
                       gap: themeData.connectorGap,
                     ),
@@ -400,6 +421,17 @@ class StepBar extends StatelessWidget {
     );
     return brightness == Brightness.dark ? Colors.white : Colors.black;
   }
+
+  Color _iconColorFor(StepBarThemeData themeData, StepStatus status) {
+    switch (status) {
+      case StepStatus.active:
+        return themeData.activeIconColor ?? Colors.white;
+      case StepStatus.completed:
+        return themeData.completedIconColor ?? Colors.white;
+      case StepStatus.inactive:
+        return themeData.inactiveIconColor ?? Colors.black54;
+    }
+  }
 }
 
 class _StepIndicator extends StatelessWidget {
@@ -412,6 +444,8 @@ class _StepIndicator extends StatelessWidget {
     required this.onColor,
     required this.icon,
     required this.showIndexFallback,
+    required this.iconThemeColor,
+    required this.iconThemeSize,
   });
 
   final int index;
@@ -422,11 +456,12 @@ class _StepIndicator extends StatelessWidget {
   final Color onColor;
   final Widget? icon;
   final bool showIndexFallback;
+  final Color iconThemeColor;
+  final double iconThemeSize;
 
   @override
   Widget build(BuildContext context) {
-    final bool isActiveOrCompleted =
-        status == StepStatus.active || status == StepStatus.completed;
+    final bool isActiveOrCompleted = status == StepStatus.active || status == StepStatus.completed;
     final Color backgroundColor = isActiveOrCompleted ? color : inactiveColor;
 
     return Semantics(
@@ -442,17 +477,18 @@ class _StepIndicator extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         alignment: Alignment.center,
-        child:
-            icon ??
-            (showIndexFallback
-                ? Text(
-                    '${index + 1}',
-                    style: TextStyle(
-                      color: onColor,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  )
-                : const SizedBox.shrink()),
+        child: IconTheme(
+          data: IconThemeData(size: iconThemeSize, color: iconThemeColor),
+          child: icon ?? (showIndexFallback
+              ? Text(
+                  '${index + 1}',
+                  style: TextStyle(
+                    color: onColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )
+              : const SizedBox.shrink()),
+        ),
       ),
     );
   }
