@@ -12,6 +12,18 @@ A customizable, responsive Step Bar widget for Flutter, ideal for multi-step for
 
 - Pub: https://pub.dev/packages/step_bar
 
+## Screenshots
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/440b1989-e4a9-4c3c-9445-6e683ab7f05a" alt="Step Bar Example 1" width="300"/>
+  <img src="https://github.com/user-attachments/assets/31ea383d-e174-4ef6-b3e6-7692e1ea6b95" alt="Step Bar Example 2" width="300"/>
+</div>
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/984088d1-f4f4-403e-bae4-82a48f627d79" alt="Step Bar Example 3" width="300"/>
+  <img src="https://github.com/user-attachments/assets/13875452-0374-4379-a00d-0a1baa88badf" alt="Step Bar Example 4" width="300"/>
+</div>
+
 ## Features
 
 - **Steps by count or explicit config**: Use `totalSteps + currentStep` or provide a `steps` list.
