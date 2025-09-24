@@ -77,96 +77,125 @@ class _WizardDemoState extends State<WizardDemo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('StepBar Wizard')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // Default styled StepBar
-            StepBar(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          // Default styled StepBar with internal padding
+          StepBar(
+            totalSteps: _labels.length,
+            currentStep: _currentStep,
+            labels: _labels,
+            icons: _icons,
+          ),
+          const SizedBox(height: 16),
+          // Custom themed StepBar with internal padding
+          StepBarTheme(
+            data: const StepBarThemeData(
+              activeColor: Colors.indigo,
+              completedColor: Colors.indigo,
+              inactiveColor: Color(0xFFE4E7EB),
+              connectorColor: Color(0xFFD0D5DD),
+              circleSize: 30,
+              connectorThickness: 4,
+              spacing: 12,
+              iconSize: 16,
+              activeIconColor: Colors.white,
+              completedIconColor: Colors.white,
+              inactiveIconColor: Color(0xFF667085),
+              labelStyle: TextStyle(fontSize: 11),
+              activeLabelStyle: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            child: StepBar(
               totalSteps: _labels.length,
               currentStep: _currentStep,
               labels: _labels,
               icons: _icons,
             ),
-            const SizedBox(height: 16),
-            // Custom themed StepBar
-            StepBarTheme(
-              data: const StepBarThemeData(
-                activeColor: Colors.indigo,
-                completedColor: Colors.indigo,
-                inactiveColor: Color(0xFFE4E7EB),
-                connectorColor: Color(0xFFD0D5DD),
-                circleSize: 30,
-                connectorThickness: 4,
-                spacing: 12,
-                iconSize: 16,
-                activeIconColor: Colors.white,
-                completedIconColor: Colors.white,
-                inactiveIconColor: Color(0xFF667085),
-              ),
-              child: StepBar(
-                totalSteps: _labels.length,
-                currentStep: _currentStep,
-                labels: _labels,
-                icons: _icons,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: Card(
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        onPageChanged: (int index) => setState(() => _currentStep = index),
-                        children: const <Widget>[
-                          _StepPage(title: 'Personal Info', description: 'Enter your name and email.'),
-                          _StepPage(title: 'Address', description: 'Provide your shipping address.'),
-                          _StepPage(title: 'Payment', description: 'Add a payment method.'),
-                          _StepPage(title: 'Review', description: 'Confirm and submit your order.'),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
+          ),
+          // Content area with padding
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
                         children: <Widget>[
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: _currentStep == 0 ? null : _goBack,
-                              child: const Text('Back'),
+                            child: PageView(
+                              controller: _pageController,
+                              onPageChanged: (int index) =>
+                                  setState(() => _currentStep = index),
+                              children: const <Widget>[
+                                _StepPage(
+                                  title: 'Personal Info',
+                                  description: 'Enter your name and email.',
+                                ),
+                                _StepPage(
+                                  title: 'Address',
+                                  description: 'Provide your shipping address.',
+                                ),
+                                _StepPage(
+                                  title: 'Payment',
+                                  description: 'Add a payment method.',
+                                ),
+                                _StepPage(
+                                  title: 'Review',
+                                  description: 'Confirm and submit your order.',
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: _currentStep == _labels.length - 1 ? null : _goNext,
-                              child: const Text('Next'),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: _currentStep == 0
+                                        ? null
+                                        : _goBack,
+                                    child: const Text('Back'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: FilledButton(
+                                    onPressed:
+                                        _currentStep == _labels.length - 1
+                                        ? null
+                                        : _goNext,
+                                    child: const Text('Next'),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    children: List<Widget>.generate(_labels.length, (int i) {
+                      return ActionChip(
+                        label: Text('Go to ${i + 1}'),
+                        onPressed: () => _goTo(i),
+                      );
+                    }),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              children: List<Widget>.generate(_labels.length, (int i) {
-                return ActionChip(
-                  label: Text('Go to ${i + 1}'),
-                  onPressed: () => _goTo(i),
-                );
-              }),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

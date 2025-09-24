@@ -154,10 +154,12 @@ class StepBarThemeData {
         color:
             (theme.textTheme.labelMedium?.color ?? theme.colorScheme.onSurface)
                 .withValues(alpha: 0.7),
+        fontSize: 11,
       ),
       activeLabelStyle: theme.textTheme.labelMedium?.copyWith(
         color: theme.colorScheme.onSurface,
         fontWeight: FontWeight.w600,
+        fontSize: 11,
       ),
       iconSize: 16.0,
       activeIconColor: theme.colorScheme.onPrimary,
@@ -303,87 +305,106 @@ class StepBar extends StatelessWidget {
         final double adaptiveCircle = ultraTight
             ? perStepWidth.clamp(4.0, resolvedCircleSize)
             : (perStepWidth < (resolvedCircleSize * 2)
-                ? (resolvedCircleSize * 0.85).clamp(4.0, resolvedCircleSize)
-                : resolvedCircleSize);
+                  ? (resolvedCircleSize * 0.85).clamp(4.0, resolvedCircleSize)
+                  : resolvedCircleSize);
 
-        final List<Widget> stepWidgets = List<Widget>.generate(numSteps, (
-          int index,
-        ) {
-          final StepBarStep step = resolvedSteps[index];
-          final bool isLast = index == numSteps - 1;
+        // Build step indicators and labels separately
+        final List<Widget> stepIndicators = <Widget>[];
+        final List<Widget> stepLabels = <Widget>[];
+        final bool anyLabels = resolvedSteps.any((s) => s.label != null);
+
+        for (int i = 0; i < numSteps; i++) {
+          final StepBarStep step = resolvedSteps[i];
           final Color color = resolveColorFor(step);
+          final bool isActive = step.status == StepStatus.active;
 
-          return Expanded(
-            child: Row(
-              children: <Widget>[
-                _StepIndicator(
-                  index: index,
-                  circleSize: adaptiveCircle,
-                  status: step.status,
-                  color: color,
-                  inactiveColor: step.color ?? inactiveColor ?? themeData.inactiveColor ?? theme.colorScheme.outlineVariant,
-                  onColor: _onColorFor(theme, color),
-                  icon: _iconFor(step),
-                  showIndexFallback: themeData.showStepIndexWhenNoIcon,
-                  iconThemeColor: _iconColorFor(themeData, step.status),
-                  iconThemeSize: themeData.iconSize,
-                ),
-                if (!isLast)
-                  (ultraTight
-                      ? const SizedBox.shrink()
-                      : Expanded(
-                          child: _StepConnector(
-                            isCompleted: step.status == StepStatus.completed || step.status == StepStatus.active,
-                            thickness: resolvedConnectorThickness,
-                            color: (step.status == StepStatus.completed)
-                                ? (step.completedColor ?? completedColor ?? themeData.completedColor ?? theme.colorScheme.primary)
-                                : resolvedConnectorColor,
-                            gap: themeData.connectorGap,
-                          ),
-                        )),
-              ],
+          // Create step indicator
+          stepIndicators.add(
+            Expanded(
+              child: _StepIndicator(
+                index: i,
+                circleSize: adaptiveCircle,
+                status: step.status,
+                color: color,
+                inactiveColor:
+                    step.color ??
+                    inactiveColor ??
+                    themeData.inactiveColor ??
+                    theme.colorScheme.outlineVariant,
+                onColor: _onColorFor(theme, color),
+                icon: _iconFor(step),
+                showIndexFallback: themeData.showStepIndexWhenNoIcon,
+                iconThemeColor: _iconColorFor(themeData, step.status),
+                iconThemeSize: themeData.iconSize,
+              ),
             ),
           );
-        });
 
-        final List<Widget> labelWidgets = <Widget>[];
-        final bool anyLabels = resolvedSteps.any((s) => s.label != null);
-        if (anyLabels) {
-          for (int i = 0; i < numSteps; i += 1) {
-            final StepBarStep step = resolvedSteps[i];
-            final bool isActive = step.status == StepStatus.active;
-            labelWidgets.add(
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(top: resolvedSpacing / 2),
-                  child: Text(
-                    step.label ?? '',
-                    textAlign: TextAlign.center,
-                    style: isActive
-                        ? (activeLabelStyle ?? themeData.activeLabelStyle)
-                        : (labelStyle ?? themeData.labelStyle),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            );
-          }
+          // Create step label
+          stepLabels.add(
+            Expanded(
+              child: anyLabels && step.label != null
+                  ? Text(
+                      step.label!,
+                      textAlign: i == 0
+                          ? TextAlign.start
+                          : i == numSteps - 1
+                          ? TextAlign.end
+                          : TextAlign.center,
+                      style: isActive
+                          ? (activeLabelStyle ?? themeData.activeLabelStyle)
+                          : (labelStyle ?? themeData.labelStyle),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          );
         }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: stepWidgets,
-            ),
-            if (labelWidgets.isNotEmpty) ...<Widget>[
-              SizedBox(height: resolvedSpacing),
-              Row(children: labelWidgets),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // Icons row with connectors positioned between them
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  for (int i = 0; i < numSteps; i++) ...<Widget>[
+                    stepIndicators[i],
+                    if (i < numSteps - 1)
+                      ultraTight
+                          ? const SizedBox.shrink()
+                          : Expanded(
+                              child: _StepConnector(
+                                isCompleted:
+                                    resolvedSteps[i].status ==
+                                        StepStatus.completed ||
+                                    resolvedSteps[i].status ==
+                                        StepStatus.active,
+                                thickness: resolvedConnectorThickness,
+                                color:
+                                    (resolvedSteps[i].status ==
+                                        StepStatus.completed)
+                                    ? (resolvedSteps[i].completedColor ??
+                                          completedColor ??
+                                          themeData.completedColor ??
+                                          theme.colorScheme.primary)
+                                    : resolvedConnectorColor,
+                                gap: themeData.connectorGap,
+                              ),
+                            ),
+                  ],
+                ],
+              ),
+              // Labels row (only if there are labels)
+              if (anyLabels) ...<Widget>[
+                SizedBox(height: resolvedSpacing),
+                Row(children: stepLabels),
+              ],
             ],
-          ],
+          ),
         );
       },
     );
@@ -466,7 +487,8 @@ class _StepIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isActiveOrCompleted = status == StepStatus.active || status == StepStatus.completed;
+    final bool isActiveOrCompleted =
+        status == StepStatus.active || status == StepStatus.completed;
     final Color backgroundColor = isActiveOrCompleted ? color : inactiveColor;
 
     return Semantics(
@@ -486,15 +508,17 @@ class _StepIndicator extends StatelessWidget {
             alignment: Alignment.center,
             child: IconTheme(
               data: IconThemeData(size: iconThemeSize, color: iconThemeColor),
-              child: icon ?? (showIndexFallback
-                  ? Text(
-                      '${index + 1}',
-                      style: TextStyle(
-                        color: onColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  : const SizedBox.shrink()),
+              child:
+                  icon ??
+                  (showIndexFallback
+                      ? Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            color: onColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : const SizedBox.shrink()),
             ),
           ),
         ),
@@ -518,6 +542,11 @@ class _StepConnector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(margin: gap, height: thickness, color: color);
+    return Container(
+      margin: gap,
+      height: thickness,
+      width: double.infinity,
+      color: color,
+    );
   }
 }

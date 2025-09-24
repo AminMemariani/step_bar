@@ -27,7 +27,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  step_bar: ^0.1.0
+  step_bar: ^0.1.1
 ```
 
 Import:

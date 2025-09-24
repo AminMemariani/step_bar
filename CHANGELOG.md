@@ -1,3 +1,14 @@
+## 0.1.1
+
+- **Layout improvements**: Enhanced label alignment with smart positioning
+  - First label: left-aligned (start)
+  - Middle labels: center-aligned
+  - Last label: right-aligned (end)
+- **Connector positioning**: Improved connector placement between step indicators
+- **Font sizing**: Added default font size (11px) for better single-line label display
+- **Full-width support**: Step bars now properly extend to screen edges
+- **Code formatting**: Applied Dart formatter standards
+
 ## 0.1.0
 
 - Initial public release of StepBar
