@@ -39,7 +39,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  step_bar: ^0.1.1
+  step_bar: ^0.1.2
 ```
 
 Import:

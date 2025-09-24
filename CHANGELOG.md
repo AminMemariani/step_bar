@@ -1,3 +1,8 @@
+## 0.1.2
+
+- **Documentation**: Added screenshots section to README showcasing package examples
+- **Visual showcase**: 2x2 grid layout displaying different step bar configurations
+
 ## 0.1.1
 
 - **Layout improvements**: Enhanced label alignment with smart positioning
