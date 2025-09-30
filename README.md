@@ -8,9 +8,18 @@
 [![Popularity](https://img.shields.io/pub/popularity/step_bar)](https://pub.dev/packages/step_bar/score)
 [![Example](https://img.shields.io/badge/example-open-blue)](https://github.com/AminMemariani/step_bar/tree/main/example)
 
-A customizable, responsive Step Bar widget for Flutter, ideal for multi-step forms and wizards. Supports per-step icons, labels, colors, and active/completed/inactive states. Provides sensible defaults and full theming via `StepBarTheme`/`StepBarThemeData`.
+A customizable, responsive Step Bar widget for Flutter, ideal for multi-step forms and wizards. Features a clean layout with icons and labels organized in columns, connected by seamless connector lines that properly align through the center of step circles. Supports per-step icons, labels, colors, and active/completed/inactive states with full theming via `StepBarTheme`/`StepBarThemeData`.
 
 - Pub: https://pub.dev/packages/step_bar
+
+## What's New in v0.1.3
+
+✨ **Major Layout Improvements**:
+- **Restructured Layout**: Icons and labels now organized in clean columns for better visual hierarchy
+- **Perfect Connector Alignment**: Connector lines now properly cross through the center of step circles
+- **Clean Visual Appearance**: Connectors are hidden behind opaque step circles, creating seamless visual flow
+- **Proper Bounds**: Connectors only appear between circles (no extension beyond first/last steps)
+- **Enhanced Depth**: Added subtle shadows to step circles for better visual depth
 
 ## Screenshots
 
@@ -26,12 +35,14 @@ A customizable, responsive Step Bar widget for Flutter, ideal for multi-step for
 
 ## Features
 
-- **Steps by count or explicit config**: Use `totalSteps + currentStep` or provide a `steps` list.
-- **Per-step customization**: Icons, labels, and color overrides.
-- **States**: `inactive`, `active`, `completed`.
-- **Theming**: Global defaults via `StepBarThemeData`, with per-widget overrides.
-- **Responsive**: Adapts sizes based on available width (mobile and web).
-- **Accessible**: Semantics for step index and state.
+- **Clean Column Layout**: Icons and labels organized in individual columns for better visual structure
+- **Seamless Connectors**: Connector lines properly cross through the center of step circles and are hidden behind opaque circles
+- **Steps by count or explicit config**: Use `totalSteps + currentStep` or provide a `steps` list
+- **Per-step customization**: Icons, labels, and color overrides
+- **States**: `inactive`, `active`, `completed`
+- **Theming**: Global defaults via `StepBarThemeData`, with per-widget overrides
+- **Responsive**: Adapts sizes based on available width (mobile and web)
+- **Accessible**: Semantics for step index and state
 
 ## Getting started
 
@@ -39,7 +50,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  step_bar: ^0.1.2
+  step_bar: ^0.1.3
 ```
 
 Import:
@@ -131,7 +142,11 @@ You can still override per `StepBar` using its optional props.
 
 ## Example app
 
-See `/example` for a runnable demo showcasing mobile and web layout.
+See `/example` for a runnable demo showcasing mobile and web layout. The example includes:
+- Interactive 4-step wizard with navigation
+- Both default and custom themed StepBar widgets
+- Comprehensive README with usage examples
+- Button navigation and direct step jumping
 
 ## Testing
 
