@@ -308,9 +308,9 @@ class StepBar extends StatelessWidget {
                   ? (resolvedCircleSize * 0.85).clamp(4.0, resolvedCircleSize)
                   : resolvedCircleSize);
 
-        // Build step indicators and labels separately
-        final List<Widget> stepIndicators = <Widget>[];
-        final List<Widget> stepLabels = <Widget>[];
+        // Build step columns (icon + label) and connectors separately
+        final List<Widget> stepColumns = <Widget>[];
+        final List<Widget> connectors = <Widget>[];
         final bool anyLabels = resolvedSteps.any((s) => s.label != null);
 
         for (int i = 0; i < numSteps; i++) {
@@ -318,33 +318,31 @@ class StepBar extends StatelessWidget {
           final Color color = resolveColorFor(step);
           final bool isActive = step.status == StepStatus.active;
 
-          // Create step indicator
-          stepIndicators.add(
+          // Create step column (icon + label)
+          stepColumns.add(
             Expanded(
-              child: _StepIndicator(
-                index: i,
-                circleSize: adaptiveCircle,
-                status: step.status,
-                color: color,
-                inactiveColor:
-                    step.color ??
-                    inactiveColor ??
-                    themeData.inactiveColor ??
-                    theme.colorScheme.outlineVariant,
-                onColor: _onColorFor(theme, color),
-                icon: _iconFor(step),
-                showIndexFallback: themeData.showStepIndexWhenNoIcon,
-                iconThemeColor: _iconColorFor(themeData, step.status),
-                iconThemeSize: themeData.iconSize,
-              ),
-            ),
-          );
-
-          // Create step label
-          stepLabels.add(
-            Expanded(
-              child: anyLabels && step.label != null
-                  ? Text(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _StepIndicator(
+                    index: i,
+                    circleSize: adaptiveCircle,
+                    status: step.status,
+                    color: color,
+                    inactiveColor:
+                        step.color ??
+                        inactiveColor ??
+                        themeData.inactiveColor ??
+                        theme.colorScheme.outlineVariant,
+                    onColor: _onColorFor(theme, color),
+                    icon: _iconFor(step),
+                    showIndexFallback: themeData.showStepIndexWhenNoIcon,
+                    iconThemeColor: _iconColorFor(themeData, step.status),
+                    iconThemeSize: themeData.iconSize,
+                  ),
+                  if (anyLabels && step.label != null) ...<Widget>[
+                    SizedBox(height: resolvedSpacing),
+                    Text(
                       step.label!,
                       textAlign: i == 0
                           ? TextAlign.start
@@ -356,53 +354,65 @@ class StepBar extends StatelessWidget {
                           : (labelStyle ?? themeData.labelStyle),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                    )
-                  : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
             ),
           );
+
+          // Create connector between steps (positioned underneath)
+          if (i < numSteps - 1) {
+            connectors.add(
+              ultraTight
+                  ? const SizedBox.shrink()
+                  : Expanded(
+                      child: _StepConnector(
+                        isCompleted:
+                            resolvedSteps[i].status == StepStatus.completed ||
+                            resolvedSteps[i].status == StepStatus.active,
+                        thickness: resolvedConnectorThickness,
+                        color: (resolvedSteps[i].status == StepStatus.completed)
+                            ? (resolvedSteps[i].completedColor ??
+                                  completedColor ??
+                                  themeData.completedColor ??
+                                  theme.colorScheme.primary)
+                            : resolvedConnectorColor,
+                        gap: EdgeInsets
+                            .zero, // Remove gaps to connect directly to circles
+                      ),
+                    ),
+            );
+          }
         }
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Stack(
             children: <Widget>[
-              // Icons row with connectors positioned between them
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              // Connectors positioned to cross through the center of the circles (rendered first, behind circles)
+              if (!ultraTight && numSteps > 1)
+                Positioned(
+                  top: adaptiveCircle / 2 - resolvedConnectorThickness / 2,
+                  left: 16.0 + adaptiveCircle,
+                  right: 16.0 + adaptiveCircle,
+                  child: Row(
+                    children: <Widget>[
+                      // Connectors between steps - only between circles, not extending beyond
+                      ...connectors,
+                    ],
+                  ),
+                ),
+              // Step columns row (icons + labels) rendered on top to hide connectors
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  for (int i = 0; i < numSteps; i++) ...<Widget>[
-                    stepIndicators[i],
-                    if (i < numSteps - 1)
-                      ultraTight
-                          ? const SizedBox.shrink()
-                          : Expanded(
-                              child: _StepConnector(
-                                isCompleted:
-                                    resolvedSteps[i].status ==
-                                        StepStatus.completed ||
-                                    resolvedSteps[i].status ==
-                                        StepStatus.active,
-                                thickness: resolvedConnectorThickness,
-                                color:
-                                    (resolvedSteps[i].status ==
-                                        StepStatus.completed)
-                                    ? (resolvedSteps[i].completedColor ??
-                                          completedColor ??
-                                          themeData.completedColor ??
-                                          theme.colorScheme.primary)
-                                    : resolvedConnectorColor,
-                                gap: themeData.connectorGap,
-                              ),
-                            ),
-                  ],
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: stepColumns,
+                  ),
                 ],
               ),
-              // Labels row (only if there are labels)
-              if (anyLabels) ...<Widget>[
-                SizedBox(height: resolvedSpacing),
-                Row(children: stepLabels),
-              ],
             ],
           ),
         );
@@ -504,6 +514,14 @@ class _StepIndicator extends StatelessWidget {
             decoration: BoxDecoration(
               color: backgroundColor,
               shape: BoxShape.circle,
+              boxShadow: [
+                // Add a subtle shadow to ensure the circle is visually on top
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 1,
+                  offset: const Offset(0, 0),
+                ),
+              ],
             ),
             alignment: Alignment.center,
             child: IconTheme(

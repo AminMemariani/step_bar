@@ -1,3 +1,14 @@
+## 0.1.3
+
+- **Layout improvements**: Complete restructure of StepBar widget layout
+  - Icons and labels now wrapped in individual columns for better organization
+  - Connector lines positioned underneath step columns using Stack layout
+  - Connectors now properly cross through the center of step circles
+  - Connectors are hidden behind opaque step circles for clean visual appearance
+  - Connector bounds adjusted to only appear between circles (not extending beyond first/last steps)
+- **Visual enhancements**: Added subtle shadow to step circles for better depth perception
+- **Improved README**: Updated example README with comprehensive usage documentation
+
 ## 0.1.2
 
 - **Documentation**: Added screenshots section to README showcasing package examples
